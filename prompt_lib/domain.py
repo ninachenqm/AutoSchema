@@ -4,13 +4,15 @@ from pathlib import Path
 from dataclasses import dataclass, field
 from typing import List, Dict, Optional
 
+
 # ============================== Last-tier registry ==============================
 @dataclass
 class LastTier:
-    key: str # Short CLI key (cof / mof / zif / amyloid / prompt)
-    text: str # Full text appended to SPEC.tiers
-    seeds_dir: str # Default seed PDFs folder
-    aliases: List[str] # Used by validate_tiers
+    key: str  # Short CLI key (cof / mof / zif / amyloid / prompt)
+    text: str  # Full text appended to SPEC.tiers
+    seeds_dir: str  # Default seed PDFs folder
+    aliases: List[str]  # Used by validate_tiers
+
 
 LAST_TIERS: Dict[str, LastTier] = {
     "cof": LastTier(
@@ -18,8 +20,10 @@ LAST_TIERS: Dict[str, LastTier] = {
         text="Covalent Organic Frameworks (COFs)",
         seeds_dir="data/seeds_cof",
         aliases=[
-            "COF", "COFs",
-            "covalent organic framework", "covalent-organic framework",
+            "COF",
+            "COFs",
+            "covalent organic framework",
+            "covalent-organic framework",
             "covalent organic frameworks",
         ],
     ),
@@ -28,8 +32,10 @@ LAST_TIERS: Dict[str, LastTier] = {
         text="Metal-Organic Frameworks (MOFs)",
         seeds_dir="data/seeds_mof",
         aliases=[
-            "MOF", "MOFs",
-            "metal-organic framework", "metal organic framework",
+            "MOF",
+            "MOFs",
+            "metal-organic framework",
+            "metal organic framework",
             "metal-organic frameworks",
         ],
     ),
@@ -38,9 +44,34 @@ LAST_TIERS: Dict[str, LastTier] = {
         text="Zeolitic Imidazolate Frameworks (ZIFs)",
         seeds_dir="data/seeds_zif",
         aliases=[
-            "ZIF", "ZIFs",
+            "ZIF",
+            "ZIFs",
             "zeolitic imidazolate framework",
             "zeolitic imidazolate frameworks",
+        ],
+    ),
+    "disulfide": LastTier(
+        key="disulfide",
+        text="Dynamic polymers containing disulfide bonds",
+        seeds_dir="data/seeds_disulfide",
+        aliases=[
+            "disulfide bond",
+            "disulfide bonds",
+            "disulfide-containing polymer",
+            "disulfide-linked polymer",
+            "dynamic disulfide polymer",
+        ],
+    ),
+    "batteries": LastTier(
+        key="batteries",
+        text="Dynamic polymers for battery applications",
+        seeds_dir="data/seeds_batteries",
+        aliases=[
+            "dynamic polymer electrolyte",
+            "self-healing polymer electrolyte",
+            "reversible polymer electrolyte",
+            "self-healing hydrogel electrolyte",
+            "dynamic polymer for batteries",
         ],
     ),
     "amyloid": LastTier(
@@ -48,10 +79,16 @@ LAST_TIERS: Dict[str, LastTier] = {
         text="Amyloid production and APP processing",
         seeds_dir="data/seeds_ad",
         aliases=[
-            "amyloid", "amyloid-beta", "amyloid beta", "Abeta", "A-beta",
-            "APP", "APP processing",
+            "amyloid",
+            "amyloid-beta",
+            "amyloid beta",
+            "Abeta",
+            "A-beta",
+            "APP",
+            "APP processing",
             "amyloid precursor protein",
-            "beta-secretase", "BACE1",
+            "beta-secretase",
+            "BACE1",
             "gamma-secretase",
         ],
     ),
@@ -60,12 +97,16 @@ LAST_TIERS: Dict[str, LastTier] = {
         text="Prompt engineering for large language models",
         seeds_dir="data/seeds_cs",
         aliases=[
-            "prompt engineering", "prompting",
-            "LLM prompt", "LLM prompting",
-            "large language model", "large language models",
+            "prompt engineering",
+            "prompting",
+            "LLM prompt",
+            "LLM prompting",
+            "large language model",
+            "large language models",
         ],
     ),
 }
+
 
 # ============================== DomainSpec ==============================
 @dataclass
@@ -76,7 +117,7 @@ class DomainSpec:
     system_role: str
     domain_aspects: List[str]
     extract_prompt_template: str
-    valid_last_tiers: List[str] # Subset of LAST_TIERS keys
+    valid_last_tiers: List[str]  # Subset of LAST_TIERS keys
     default_last_tier: Optional[str] = None  # None => --last_tier is REQUIRED
     required_terms: List[str] = field(default_factory=list)
     block_terms: List[str] = field(default_factory=list)
@@ -126,21 +167,24 @@ class DomainSpec:
                 f"Valid options: {self.valid_last_tiers}"
             )
         lt = LAST_TIERS[chosen]
-        self.last_tier_key     = chosen
+        self.last_tier_key = chosen
         self.last_tier_aliases = list(lt.aliases)
-        self.seeds_dir         = lt.seeds_dir
+        self.seeds_dir = lt.seeds_dir
         return self
+
 
 # ============================== Prompt builders ==============================
 def _aliases_str(spec: "DomainSpec") -> str:
     aliases = spec.last_tier_aliases or []
     return ", ".join(aliases) if aliases else spec.last_tier
 
+
 def _aspects_str(spec: "DomainSpec") -> str:
     bullets = spec.domain_aspects or [
         "any relevant theme that appears in the seed papers"
     ]
     return "\n                - ".join(bullets)
+
 
 def _build_domain_prompt(spec: DomainSpec) -> str:
     return f"""
@@ -175,6 +219,7 @@ def _build_domain_prompt(spec: DomainSpec) -> str:
         Be concise.
     """
 
+
 def _build_general_prompt(spec: DomainSpec) -> str:
     return f"""
         Return ONLY a JSON object: {{"queries":[...]}} with 10 items.
@@ -205,6 +250,7 @@ def _build_general_prompt(spec: DomainSpec) -> str:
         Be concise.
     """
 
+
 # ============================== Extraction-prompt templates ==============================
 CHEM_EXTRACT_TEMPLATE = """
     Return ONLY valid JSON. Use null or [] if unknown. No prose, no backticks.
@@ -225,6 +271,43 @@ CHEM_EXTRACT_TEMPLATE = """
 
     Text:
 `````{paper_text}```
+"""
+
+POLYMER_EXTRACT_TEMPLATE = """
+    Return ONLY valid JSON. Use null or [] if unknown.
+    No prose, no backticks.
+
+    Focus on the polymers actually studied in the paper.
+    Do not confuse background materials with studied materials.
+
+    Top-level keys MUST be exactly:
+        metadata, target_material, synthesis, properties, applications, notes
+
+    Schema:
+        - metadata: {title, authors, year, venue, doi, url}
+        - target_material: {
+            polymer_names[], polymer_family,
+            monomers[], dynamic_bonds[], dynamic_mechanisms[]
+          }
+        - synthesis: {
+            methods[], components[], crosslinking_methods[]
+          }
+        - properties: {
+            mechanical[], self_healing[], ionic_conductivity[],
+            electrochemical[], testing_conditions[]
+          }
+        - applications: {
+            demonstrated[], proposed[]
+          }
+        - notes: {
+            key_findings[], limitations[]
+          }
+
+    Extract only information supported by the paper.
+    Include units and test conditions when reported.
+
+    Text:
+    ```{paper_text}```
 """
 
 CS_EXTRACT_TEMPLATE = """
@@ -286,6 +369,13 @@ _BASE_CHEM_TIERS = [
     "Porous materials",
 ]
 
+_BASE_POLYMER_TIERS = [
+    "Physical sciences",
+    "Chemistry",
+    "Materials chemistry",
+    "Polymers",
+]
+
 _BASE_CS_TIERS = [
     "Computer science",
     "Artificial intelligence",
@@ -305,6 +395,15 @@ _CHEM_DOMAIN_ASPECTS = [
     "how its stability or degradation is evaluated",
     "how its physical/chemical properties or performance are measured",
     "how it is applied in different contexts",
+    "any other important themes that appear in the seed papers",
+]
+
+_POLYMER_DOMAIN_ASPECTS = [
+    "how the polymer is synthesized and prepared",
+    "how its chemical structure and dynamic bonds are characterized",
+    "how its mechanical, self-healing, or electrochemical properties are measured",
+    "how experimental conditions affect its performance",
+    "how it is used and evaluated in different applications",
     "any other important themes that appear in the seed papers",
 ]
 
@@ -335,7 +434,17 @@ DOMAINS: Dict[str, DomainSpec] = {
         domain_aspects=_CHEM_DOMAIN_ASPECTS,
         extract_prompt_template=CHEM_EXTRACT_TEMPLATE,
         valid_last_tiers=["cof", "mof", "zif"],
-        default_last_tier=None,                 # --last_tier is REQUIRED
+        default_last_tier=None,  # --last_tier is REQUIRED
+    ),
+    "polymer": DomainSpec(
+        domain_key="polymer",
+        base_tiers=_BASE_POLYMER_TIERS,
+        arxiv_bool="(cat:cond-mat.mtrl-sci OR cat:physics.chem-ph)",
+        system_role="polymer materials",
+        domain_aspects=_POLYMER_DOMAIN_ASPECTS,
+        extract_prompt_template=POLYMER_EXTRACT_TEMPLATE,
+        valid_last_tiers=["disulfide", "batteries"],
+        default_last_tier=None,
     ),
     "cs": DomainSpec(
         domain_key="cs",
@@ -359,17 +468,22 @@ DOMAINS: Dict[str, DomainSpec] = {
     ),
 }
 
+
 # ============================== CLI parsing ==============================
 def _parse_cli() -> argparse.Namespace:
     parser = argparse.ArgumentParser(add_help=False)
     parser.add_argument("--domain", choices=list(DOMAINS.keys()))
     parser.add_argument(
-        "--last_tier", "--last-tier",
-        dest="last_tier", type=str, default=None,
+        "--last_tier",
+        "--last-tier",
+        dest="last_tier",
+        type=str,
+        default=None,
         help="Last-tier key: one of cof / mof / zif / amyloid / prompt.",
     )
     args, _ = parser.parse_known_args()
     return args
+
 
 def get_domain() -> str:
     env = os.getenv("DOMAIN")
@@ -381,15 +495,17 @@ def get_domain() -> str:
         )
     return chosen
 
+
 def get_last_tier_key() -> Optional[str]:
     env = os.getenv("LAST_TIER")
     cli = _parse_cli()
     val = cli.last_tier or env
     return val.lower() if val else None
 
+
 # ============================== Module-level resolved SPEC ==============================
 DOMAIN = get_domain()
-SPEC   = DOMAINS[DOMAIN].resolve(get_last_tier_key())
+SPEC = DOMAINS[DOMAIN].resolve(get_last_tier_key())
 
 DATA_DIR = Path(SPEC.seeds_dir)
 _OUTPUT_ROOT = os.getenv("AUTOSCHEMA_OUTPUT_DIR", "output")

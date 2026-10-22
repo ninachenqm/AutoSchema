@@ -174,7 +174,7 @@ def main():
         "--domain",
         type=str,
         default=None,
-        choices=["chem", "cs", "ad"],
+        choices=["chem", "cs", "ad", "polymer"],
         help="Domain key (chem | cs | ad). Consumed by prompt_lib.domain at import.",
     )
     parser.add_argument(
