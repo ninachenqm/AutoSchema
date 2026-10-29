@@ -52,26 +52,37 @@ LAST_TIERS: Dict[str, LastTier] = {
     ),
     "disulfide": LastTier(
         key="disulfide",
-        text="Dynamic polymers containing disulfide bonds",
+        text="Disulfide-containing polymers",
         seeds_dir="data/seeds_disulfide",
         aliases=[
-            "disulfide bond",
-            "disulfide bonds",
             "disulfide-containing polymer",
             "disulfide-linked polymer",
-            "dynamic disulfide polymer",
+            "disulfide-linked polymers",
+            "polymers with disulfide bonds",
+            "disulfide-functionalized polymers",
         ],
     ),
     "batteries": LastTier(
         key="batteries",
-        text="Dynamic polymers for battery applications",
+        text="Polymers for battery applications",
         seeds_dir="data/seeds_batteries",
         aliases=[
-            "dynamic polymer electrolyte",
-            "self-healing polymer electrolyte",
-            "reversible polymer electrolyte",
-            "self-healing hydrogel electrolyte",
-            "dynamic polymer for batteries",
+            "polymers for batteries",
+            "battery polymer materials",
+            "polymer-based battery materials",
+            "polymer materials for battery applications",
+            "polymer electrolytes for batteries",
+        ],
+    ),
+    "glass_transition": LastTier(
+        key="glass_transition",
+        text="Glass transition in polymers",
+        seeds_dir="data/seeds_glass_transition",
+        aliases=[
+            "glass transition",
+            "glass transition temperature",
+            "glass transition in polymers",
+            "polymer glass transition",
         ],
     ),
     "amyloid": LastTier(
@@ -294,7 +305,8 @@ POLYMER_EXTRACT_TEMPLATE = """
           }
         - properties: {
             mechanical[], self_healing[], ionic_conductivity[],
-            electrochemical[], testing_conditions[]
+            electrochemical[], thermal[], glass_transition_temperature[],
+            testing_conditions[]
           }
         - applications: {
             demonstrated[], proposed[]
@@ -399,11 +411,11 @@ _CHEM_DOMAIN_ASPECTS = [
 ]
 
 _POLYMER_DOMAIN_ASPECTS = [
-    "how the polymer is synthesized and prepared",
-    "how its chemical structure and dynamic bonds are characterized",
-    "how its mechanical, self-healing, or electrochemical properties are measured",
-    "how experimental conditions affect its performance",
-    "how it is used and evaluated in different applications",
+    "how relevant polymers are synthesized, processed, or prepared",
+    "how polymer composition, chemical structure, and bonding are characterized",
+    "how thermal, mechanical, transport, or electrochemical properties are measured, where relevant",
+    "how experimental conditions and characterization methods affect reported results",
+    "how the polymers are used and evaluated in their target applications",
     "any other important themes that appear in the seed papers",
 ]
 
@@ -443,7 +455,7 @@ DOMAINS: Dict[str, DomainSpec] = {
         system_role="polymer materials",
         domain_aspects=_POLYMER_DOMAIN_ASPECTS,
         extract_prompt_template=POLYMER_EXTRACT_TEMPLATE,
-        valid_last_tiers=["disulfide", "batteries"],
+        valid_last_tiers=["disulfide", "batteries", "glass_transition"],
         default_last_tier=None,
     ),
     "cs": DomainSpec(
