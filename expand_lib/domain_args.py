@@ -56,6 +56,13 @@ _AD_ARXIV_CATS   = ["q-bio.NC", "q-bio.BM", "q-bio.MN", "q-bio.SC"]
 
 _CHEM_BASE_TIERS = ["Physical sciences", "Chemistry",
                     "Materials chemistry", "Porous materials"]
+_POLYMER_BASE_TIERS = [
+    "Physical sciences",
+    "Chemistry",
+    "Materials chemistry",
+    "Polymers",
+]
+
 _CS_BASE_TIERS   = ["Computer science", "Artificial intelligence",
                     "Machine learning"]
 _AD_BASE_TIERS   = ["Health sciences", "Neuroscience",
@@ -88,6 +95,38 @@ LAST_TIERS: Dict[str, LastTier] = {
                  "zeolitic imidazolate framework",
                  "zeolitic imidazolate frameworks"],
     ),
+    "disulfide": LastTier(
+        key="disulfide",
+        text="Disulfide-containing polymers",
+        aliases=[
+            "disulfide-containing polymer",
+            "disulfide-linked polymer",
+            "disulfide-linked polymers",
+            "polymers with disulfide bonds",
+            "disulfide-functionalized polymers",
+        ],
+    ),
+    "batteries": LastTier(
+        key="batteries",
+        text="Polymers for battery applications",
+        aliases=[
+            "polymers for batteries",
+            "battery polymer materials",
+            "polymer-based battery materials",
+            "polymer materials for battery applications",
+            "polymer electrolytes for batteries",
+        ],
+    ),
+    "glass_transition": LastTier(
+        key="glass_transition",
+        text="Glass transition in polymers",
+        aliases=[
+            "glass transition",
+            "glass transition temperature",
+            "glass transition in polymers",
+            "polymer glass transition",
+        ],
+    ),
     "prompt": LastTier(
         key="prompt",
         text="Prompt engineering for large language models",
@@ -104,6 +143,7 @@ LAST_TIERS: Dict[str, LastTier] = {
 }
 
 _CHEM_DEFAULT_SOURCES = ("arxiv", "openalex", "nature", "core")
+_POLYMER_DEFAULT_SOURCES = _CHEM_DEFAULT_SOURCES
 _AD_DEFAULT_SOURCES   = ("pubmed", "biorxiv", "openalex", "core")
 _CS_DEFAULT_SOURCES   = ("arxiv", "openalex")
 
@@ -115,6 +155,13 @@ DOMAINS: Dict[str, DomainSpec] = {
         default_sources=_CHEM_DEFAULT_SOURCES,
         valid_last_tiers=["cof", "mof", "zif"],
         default_last_tier=None,                       # MUST pass --last_tier
+    ),
+    "polymer": DomainSpec(
+        arxiv_cats=_CHEM_ARXIV_CATS,
+        base_tiers=_POLYMER_BASE_TIERS,
+        default_sources=_POLYMER_DEFAULT_SOURCES,
+        valid_last_tiers=["disulfide", "batteries", "glass_transition"],
+        default_last_tier=None,
     ),
     "cs": DomainSpec(
         arxiv_cats=_CS_ARXIV_CATS,
