@@ -19,6 +19,7 @@ Place the seed PDFs in:
 ```text
 data/seeds_disulfide/    # 3 PDFs
 data/seeds_batteries/    # 3 PDFs
+data/seeds_glass_transition/    # 3 PDFs
 ```
 
 ## 2. Generate Queries
@@ -35,6 +36,12 @@ python prompt_pipeline.py --domain polymer --last_tier disulfide --seeds data/se
 python prompt_pipeline.py --domain polymer --last_tier batteries --seeds data/seeds_batteries --output runs/polymer/batteries/run_01
 ```
 
+**Glass transition in polymers**
+
+```bash
+python prompt_pipeline.py --domain polymer --last_tier glass_transition --seeds data/seeds_glass_transition --output runs/polymer/glass_transition/run_01
+```
+
 ## 3. Outputs
 
 Each run creates the following files in its specified output directory:
@@ -43,4 +50,4 @@ Each run creates the following files in its specified output directory:
 - `papers.jsonl` — Structured information extracted from the seed PDFs.
 - `seeds/` — Copies of the input PDFs.
 
-**Note:** Use a new output directory for each run to avoid overwriting previous results. The `glass_transition` DomainSpec is configured, but its seed PDFs are not yet available.
+**Note:** Use a new output directory for each run to avoid overwriting previous results. Seed PDFs are stored locally and shared separately, not committed to GitHub.
